@@ -8,7 +8,7 @@ local shootDirection = nil
 local lockOnThreshold = 20  -- Distance threshold for detecting lock-on
 local originalCameraPosition = nil  -- Store original camera position when locked
 local antiLockEnabled = false  -- To track whether anti-lock is enabled or not
-local is4xLockActive = false  -- Flag for 4x Lock feature
+local is4xAntiLockActive = false  -- Flag for 4x Anti Lock feature
 
 -- Randomization for tight security
 local function randomize(value, range)
@@ -17,7 +17,8 @@ end
 
 -- Create a screen GUI to hold the buttons
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = player.PlayerGui
+screenGui.Name = "AntiLockGUI"
+screenGui.Parent = player.PlayerGui  -- Parent the GUI to PlayerGui for persistence
 
 -- Create a main toggle button for mobile (positioned at top-left corner)
 local toggleButton = Instance.new("TextButton")
@@ -30,16 +31,16 @@ toggleButton.BackgroundColor3 = Color3.fromRGB(169, 169, 169)  -- Grey backgroun
 toggleButton.Font = Enum.Font.SourceSans
 toggleButton.TextSize = 14  -- Smaller text size for the toggle button
 
--- Create a "4x Lock" button inside the main toggle button
+-- Create a "4x Anti Lock" button inside the main toggle button
 local lockButton = Instance.new("TextButton")
 lockButton.Parent = toggleButton  -- Make it a child of the main toggle button
 lockButton.Size = UDim2.new(1, 0, 0.5, 0)  -- Size: 100% width, 50% height of the toggle button
 lockButton.Position = UDim2.new(0, 0, 0.5, 0)  -- Positioned at the bottom half of the toggle button
-lockButton.Text = "4x Lock"
+lockButton.Text = "4x Anti Lock Off"
 lockButton.TextColor3 = Color3.fromRGB(0, 0, 0)  -- Black text color
-lockButton.BackgroundColor3 = Color3.fromRGB(128, 128, 128)  -- Darker grey for 4x Lock button
+lockButton.BackgroundColor3 = Color3.fromRGB(128, 128, 128)  -- Darker grey for 4x Anti Lock button
 lockButton.Font = Enum.Font.SourceSans
-lockButton.TextSize = 12  -- Smaller text size for the "4x Lock" button
+lockButton.TextSize = 12  -- Smaller text size for the "4x Anti Lock" button
 lockButton.BorderSizePixel = 2  -- Set border thickness
 lockButton.BorderColor3 = Color3.fromRGB(0, 0, 255)  -- Blue border outline
 
@@ -189,15 +190,21 @@ toggleButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- "4x Lock" button functionality
+-- "4x Anti Lock" button functionality
 lockButton.MouseButton1Click:Connect(function()
-    is4xLockActive = not is4xLockActive  -- Toggle the 4x Lock feature
-    if is4xLockActive then
-        lockButton.Text = "4x Lock On"  -- Indicate that 4x Lock is enabled
-        -- You can add additional logic for what the 4x Lock does here
-        print("4x Lock is now active!")
+    is4xAntiLockActive = not is4xAntiLockActive  -- Toggle the 4x Anti Lock feature
+    if is4xAntiLockActive then
+        lockButton.Text = "4x Anti Lock On"  -- Indicate that 4x Anti Lock is enabled
+        print("4x Anti Lock is now active!")
     else
-        lockButton.Text = "4x Lock"  -- Indicate that 4x Lock is disabled
-        print("4x Lock is now disabled.")
+        lockButton.Text = "4x Anti Lock Off"  -- Indicate that 4x Anti Lock is disabled
+        print("4x Anti Lock is now disabled.")
+    end
+end)
+
+-- Prevent destruction of GUI on respawn: Keep the GUI on PlayerGui and don't destroy it on death
+player.CharacterAdded:Connect(function()
+    if screenGui.Parent ~= player.PlayerGui then
+        screenGui.Parent = player.PlayerGui  -- Ensure the GUI is still there after respawn
     end
 end)
